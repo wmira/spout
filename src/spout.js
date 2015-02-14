@@ -42,19 +42,36 @@ var StoreFactory = function(pconstr,pattributes) {
 
 
 var Dispatcher = function() {
+
     var dispatchers = [];
-    
+
     var consumers = [];
 
     /**
-     * Register a consumer
      *
+     * Register the given path or type
+     *
+     * path can be :
+     *
+     * "src/Source",
+     * "src/Source/Sub"
+     *
+     * "type/MESSAGE_TYPE"
+     * "type
+     *
+     *  payload
+     *
+     *
+     *
+     * @param path
      * @param consumer
      */
-    this.register = function(consumer) {
-        
+    this.register = function(path,consumerInput) {
+        var consumer = !consumerInput ? path : consumerInput;
         consumers.push(consumer);
     };
+
+
 
     /**
      * Dispatch the given payload
@@ -65,21 +82,22 @@ var Dispatcher = function() {
      */
     this.dispatch = function(payload) {
         consumers.forEach(function(consumer) {
-            if ( consumer.dispatch ) {
-                consumer.dispatch(payload);
+            if ( consumer.onAction ) {
+                consumer.onAction(payload);
             } else {
                 consumer(payload);
-            } 
+            }
         });
     };
 
 
     /**
      * Create a click dispatcher for this el
-     * 
+     *
      * @param el
      */
     this.clickDispatcher = function(el) {
+
         dispatchers.push(new ClickDispatcher(el,this));
         return this;
     };
@@ -102,16 +120,26 @@ var ClickDispatcher = function(el,mainDispatcher) {
         var action = target.getAttribute("dispatch-action") || target.getAttribute("data-dispatch-action");
         var source = target.getAttribute("dispatch-source")|| target.getAttribute("data-dispatch-source");
         var payload;
+        var data = {};
+        var attribs = target.attributes;
+        var i,attrNodeName;
+        
         if ( !action ) {
             return;
         }
+        for ( i=0; i < attribs.length;i++ ) {
+            attrNodeName = attribs[i].nodeName;
+            if ( attrNodeName.indexOf("data-") === 0 ) {
+                data[attrNodeName] = attribs[i].nodeValue;
+            }
 
-
+        }
+        
         payload = {
             source : source,
             action : {
-                type : action
-                //TODO: collect all data-c- attribs and pass it
+                type : action,
+                data: data
             }
         };
         

@@ -68,7 +68,7 @@ describe('dispatcher tests', function() {
         
         var dispatcher = spout.dispatcher();
         var store = spout.store({
-            dispatch : function(act) {
+            onAction : function(act) {
                 this.action = act;
             }
         });
@@ -77,5 +77,10 @@ describe('dispatcher tests', function() {
         
         assert.equal( "NEW_ACTION", store.action.action.type );
     });
-    
+
+
+    it('it should dispatch el', function(){
+        
+    });
 });
+
