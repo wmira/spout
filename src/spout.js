@@ -82,10 +82,13 @@ var Dispatcher = function() {
      */
     this.dispatch = function(payload) {
         consumers.forEach(function(consumer) {
+            
             if ( consumer.onAction ) {
                 consumer.onAction(payload);
             } else {
-                consumer(payload);
+                if ( typeof consumer === 'function' ) {
+                    consumer(payload);
+                }
             }
         });
     };
@@ -97,10 +100,16 @@ var Dispatcher = function() {
      * @param el
      */
     this.clickDispatcher = function(el) {
-
-        dispatchers.push(new ClickDispatcher(el,this));
+        if ( !this.clickDispatcher ) {
+            this.clickDispatcher = new ClickDispatcher(el, this);
+            dispatchers.push(clickDispatcher);
+        }
         return this;
     };
+    
+    this.destroy = function() {
+        this.clickDispatcher.destroy();
+    }
 };
 
 /**
@@ -110,12 +119,9 @@ var Dispatcher = function() {
  * @constructor
  */
 var ClickDispatcher = function(el,mainDispatcher) {
+    
+    var eventDispatcher = function(e) {
 
-    this.mainDispatcher = mainDispatcher;
-    this.el = el;
-
-    this.el.addEventListener("click",function(e) {
-        
         var target = e.target;
         var action = target.getAttribute("dispatch-action") || target.getAttribute("data-dispatch-action");
         var source = target.getAttribute("dispatch-source")|| target.getAttribute("data-dispatch-source");
@@ -123,18 +129,18 @@ var ClickDispatcher = function(el,mainDispatcher) {
         var data = {};
         var attribs = target.attributes;
         var i,attrNodeName;
-        
+
         if ( !action ) {
             return;
         }
         for ( i=0; i < attribs.length;i++ ) {
             attrNodeName = attribs[i].nodeName;
             if ( attrNodeName.indexOf("data-") === 0 ) {
-                data[attrNodeName] = attribs[i].nodeValue;
+                data[attrNodeName] = attribs[i].value;
             }
 
         }
-        
+
         payload = {
             source : source,
             action : {
@@ -142,11 +148,18 @@ var ClickDispatcher = function(el,mainDispatcher) {
                 data: data
             }
         };
-        
+
         this.mainDispatcher.dispatch(payload);
-    }.bind(this));
+    }.bind(this);
+    
+    this.mainDispatcher = mainDispatcher;
+    this.el = el;
+    
+    this.el.addEventListener("click",eventDispatcher);
 
-
+    this.destroy = function() {
+        this.el.removeEventListener("click",eventDispatcher);
+    }
 };
 
 module.exports = {

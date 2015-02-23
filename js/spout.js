@@ -138,10 +138,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    this.dispatch = function(payload) {
 	        consumers.forEach(function(consumer) {
+	            
 	            if ( consumer.onAction ) {
 	                consumer.onAction(payload);
 	            } else {
-	                consumer(payload);
+	                if ( typeof consumer === 'function' ) {
+	                    consumer(payload);
+	                }
 	            }
 	        });
 	    };
@@ -171,7 +174,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.el = el;
 
 	    this.el.addEventListener("click",function(e) {
-	        
+
 	        var target = e.target;
 	        var action = target.getAttribute("dispatch-action") || target.getAttribute("data-dispatch-action");
 	        var source = target.getAttribute("dispatch-source")|| target.getAttribute("data-dispatch-source");
@@ -179,14 +182,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var data = {};
 	        var attribs = target.attributes;
 	        var i,attrNodeName;
-	        
+
 	        if ( !action ) {
 	            return;
 	        }
 	        for ( i=0; i < attribs.length;i++ ) {
 	            attrNodeName = attribs[i].nodeName;
 	            if ( attrNodeName.indexOf("data-") === 0 ) {
-	                data[attrNodeName] = attribs[i].nodeValue;
+	                data[attrNodeName] = attribs[i].value;
 	            }
 
 	        }
