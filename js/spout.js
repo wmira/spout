@@ -158,7 +158,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.clickDispatcher = function(el) {
 	        if ( !this.clickDispatcher ) {
 	            this.clickDispatcher = new ClickDispatcher(el, this);
-	            dispatchers.push(clickDispatcher);
+	            dispatchers.push(this.clickDispatcher);
 	        }
 	        return this;
 	    };
