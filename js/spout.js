@@ -156,10 +156,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @param el
 	     */
 	    this.clickDispatcher = function(el) {
-
-	        dispatchers.push(new ClickDispatcher(el,this));
+	        if ( !this.clickDispatcher ) {
+	            this.clickDispatcher = new ClickDispatcher(el, this);
+	            dispatchers.push(clickDispatcher);
+	        }
 	        return this;
 	    };
+	    
+	    this.destroy = function() {
+	        this.clickDispatcher.destroy();
+	    }
 	};
 
 	/**
@@ -169,11 +175,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @constructor
 	 */
 	var ClickDispatcher = function(el,mainDispatcher) {
-
-	    this.mainDispatcher = mainDispatcher;
-	    this.el = el;
-
-	    this.el.addEventListener("click",function(e) {
+	    
+	    var eventDispatcher = function(e) {
 
 	        var target = e.target;
 	        var action = target.getAttribute("dispatch-action") || target.getAttribute("data-dispatch-action");
@@ -193,7 +196,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 
 	        }
-	        
+
 	        payload = {
 	            source : source,
 	            action : {
@@ -201,11 +204,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	                data: data
 	            }
 	        };
-	        
+
 	        this.mainDispatcher.dispatch(payload);
-	    }.bind(this));
+	    }.bind(this);
+	    
+	    this.mainDispatcher = mainDispatcher;
+	    this.el = el;
+	    
+	    this.el.addEventListener("click",eventDispatcher);
 
-
+	    this.destroy = function() {
+	        this.el.removeEventListener("click",eventDispatcher);
+	    }
 	};
 
 	module.exports = {
