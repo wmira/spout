@@ -1,8 +1,8 @@
 {
   "name": "spout",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A Micro Flux Framework",
-  "main": "js/spout.js",
+  "main": "src/spout.js",
   "author": "Warren Mira <warrenmira@gmail.com>",
   "scripts": {
     "build": "webpack src/spout.js js/spout.js",
