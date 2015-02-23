@@ -1,6 +1,6 @@
 {
   "name": "spout",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A Micro Flux Framework",
   "main": "src/spout.js",
   "author": "Warren Mira <warrenmira@gmail.com>",

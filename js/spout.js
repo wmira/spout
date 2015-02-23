@@ -156,15 +156,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @param el
 	     */
 	    this.clickDispatcher = function(el) {
-	        if ( !this.clickDispatcher ) {
-	            this.clickDispatcher = new ClickDispatcher(el, this);
-	            dispatchers.push(this.clickDispatcher);
+	        if ( !this.__clickDispatcher ) {
+	            this.__clickDispatcher = new ClickDispatcher(el, this);
+	            dispatchers.push(this.__clickDispatcher);
 	        }
 	        return this;
 	    };
-	    
+
 	    this.destroy = function() {
-	        this.clickDispatcher.destroy();
+	        if ( this.__clickDispatcher ) {
+	            this.__clickDispatcher.destroy();
+	        }
 	    }
 	};
 
