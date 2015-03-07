@@ -58,7 +58,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* jshint -W097 */
 	"use strict";
 
-	var EventEmitter = __webpack_require__(1).EventEmitter;
+	var EventEmitter = __webpack_require__(2).EventEmitter;
+
+	var util = __webpack_require__(1);
 
 	var Store = function(pconstr,pattributes) {
 
@@ -138,12 +140,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	     */
 	    this.dispatch = function(payload) {
 	        consumers.forEach(function(consumer) {
-	            
-	            if ( consumer.onAction ) {
-	                consumer.onAction(payload);
+
+	            //check first if type is there so we can do some automated things.
+	            var type = util.deriveType(payload);
+
+	            var typeFunctionName = util.toCamelCaseFunctionName(type);
+
+	            if ( typeFunctionName && consumer[typeFunctionName] ) {
+	                consumer[typeFunctionName].apply(consumer,[payload]);
 	            } else {
-	                if ( typeof consumer === 'function' ) {
-	                    consumer(payload);
+	                if (consumer.onAction) {
+	                    consumer.onAction(payload);
+	                } else {
+	                    if (typeof consumer === 'function') {
+	                        consumer(payload);
+	                    }
 	                }
 	            }
 	        });
@@ -236,6 +247,47 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+
+
+
+	module.exports = {
+	    deriveType : function(payload) {
+
+	       if ( payload && payload.action && payload.action.type ) {
+	           return payload.action.type;
+	       }
+	       return null;
+	    },
+
+	    /**
+	     * Takes A_IN_P and transforms to aInP
+	     *
+	     * @param payload
+	     * @returns {*}
+	     */
+	    toCamelCaseFunctionName : function(text) {
+	        var type =text;
+	        var idx;
+
+
+	        if ( type ) {
+	            type = type.toLowerCase();
+
+	            while ( type.indexOf("_") > -1 ) {
+	                idx = type.indexOf("_");
+	                type = type.substring(0,idx) +  type.substring(idx+1,idx+2).toUpperCase() +  type.substring(idx+2,type.length);
+
+	            }
+	        }
+	        return type;
+	    }
+	};
+
+/***/ },
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
