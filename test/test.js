@@ -5,11 +5,18 @@
 
 var assert = require("assert");
 var spout = require("../src/spout");
+var util = require("../src/util");
 
+describe('util tests',function() {
+    assert.equal("heyJude",util.toCamelCaseFunctionName("HEY_JUDE"));
+    assert.equal("hey",util.toCamelCaseFunctionName("HEY"));
+    assert.equal("heyThereAgain",util.toCamelCaseFunctionName("HEY_THERE_AGAIN"));
+
+});
 
 describe('store tests', function(){
     it('it should initialize constructor', function(){
-        
+
         var store = spout.store(function() {
             this.__param = "PARAM";
         });

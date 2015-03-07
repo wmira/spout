@@ -4,6 +4,8 @@
 
 var EventEmitter = require('events').EventEmitter;
 
+var util = require("./util");
+
 var Store = function(pconstr,pattributes) {
 
     var constr;
@@ -82,12 +84,21 @@ var Dispatcher = function() {
      */
     this.dispatch = function(payload) {
         consumers.forEach(function(consumer) {
-            
-            if ( consumer.onAction ) {
-                consumer.onAction(payload);
+
+            //check first if type is there so we can do some automated things.
+            var type = util.deriveType(payload);
+
+            var typeFunctionName = util.toCamelCaseFunctionName(type);
+
+            if ( typeFunctionName && consumer[typeFunctionName] ) {
+                consumer[typeFunctionName].apply(consumer,[payload]);
             } else {
-                if ( typeof consumer === 'function' ) {
-                    consumer(payload);
+                if (consumer.onAction) {
+                    consumer.onAction(payload);
+                } else {
+                    if (typeof consumer === 'function') {
+                        consumer(payload);
+                    }
                 }
             }
         });
